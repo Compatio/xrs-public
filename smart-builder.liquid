@@ -1,0 +1,221 @@
+<script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous">
+</script>
+
+<script async src="{{shop.metafields["global"]["CompatioJS"]}}"></script>
+<script>
+  
+  window.compatioConfig = window.compatioConfig || {};
+  window.compatioConfig.gmsMap = {{shop.metafields["shop"]["gmsMap"]}}
+  window.compatioConfig.compatioApiKey = {{shop.metafields["global"]["CompatioAPIKey"]}};
+  window.compatioConfig.locale = 'en-US';
+  window.compatioConfig.shopify={
+    apiEndpointUrl: "https://{{shop.permanent_domain}}/api/graphql",
+    baseUrl: "https://{{shop.permanent_domain}}",
+    urlSuffix: '',
+    shopifyStorefrontAccessToken: "{{shop.metafields["global"]["AccessToken"]}}",
+    merchantKey: "{{shop.metafields["global"]["merchantKey"]}}",
+    targetGraph:"{{shop.metafields["global"]["TargetGraph"]}}",
+    modelId: "{{shop.metafields["global"]["ModelId"]}}",
+    maximumCategories:5
+  };
+  
+  //Give the productType from where you want to start the blank builder
+    window.compatioConfig.compatibleProducts = {
+
+      productName: `{{product.title}}`,
+      variantTitle: `{{product.selected_or_first_available_variant.title}}`,
+      productImage: `https:{{product.featured_media | img_url}}`,
+      productType: "CASSETTE", 
+      price: 0,
+      compatAtPrice: `{{product.selected_or_first_available_variant.compatAtPrice | money }}`,
+      isProductSkuRandom: false,
+      productsPerPage: 12,
+      isPreloadEcommerceDataEnabled: false,
+      showAddToCart:true,
+      methods: { handleChangeProductSku : function(productSku) {} },
+      callbacks: {  }
+    };
+     window.compatioConfig.compatibleProducts.backingData = [  ];
+       
+
+       window.compatioConfig.compatibleProducts.dcConfig = {
+         title:"Build an Outfit from this product",
+         description:"Browse compatible rods,reels,lines,leaders and other accessories",
+         imageUrl:"https://cdn.shopify.com/s/files/1/0150/8042/3488/files/MRFC_Fly_Fishing_June_2020-11_1_1024x1024.jpg?v=1592633975"
+       };
+
+       window.compatioConfig.dcColorConfig = {
+      	 colorCombination:"green"
+       };
+       
+
+    
+          $(".xrs_compatibility_with").after( `<p><span data-xrs-compatible-with></span></p>` ); 
+       
+          $(".xrs_compatibility_with").remove(); 
+         $(".data-dc-anchor").click(function(){   
+             if(window.compatioConfig.dcColorConfig.colorCombination != ''){
+             	$(".dc-build-anchor").addClass(window.compatioConfig.dcColorConfig.colorCombination);
+             }
+         	 //$("html, body").animate({ scrollTop: 0 }, "fast");
+          	$( ".dc-build-anchor" ).appendTo( $( "body" ) );
+         });
+ 
+ 
+  
+ $('body').on('click', '#addoutfittocart', function(){
+    let prods = [];
+    const productList =  $('#addoutfittocart').attr('productsadded') === ' ' ? [] : $('#addoutfittocart').attr('productsadded').split(',');
+    if(productList.length > 0) {
+     const xrsUserId = $('#addoutfittocart').attr('data-userid');   
+      const reelId = $('#addoutfittocart').attr('reelid');
+      console.log(reelId)
+      if(reelId !== '-1') {
+      	const reelsOptions = $('#addoutfittocart').attr('additionaloptions') === ' ' ? [] : JSON.parse($('#addoutfittocart').attr('additionaloptions'));
+      	if(reelsOptions !== undefined && reelsOptions.length != 0) {
+        prods.push({
+      		quantity: 1,
+      		id: reelId,
+      		properties: {
+                    '_xrsUserId':xrsUserId,
+                     '_itemSource':'SmartBuilder',
+        			'backing_option': reelsOptions.backing_option,
+		            'lefthand_righthand': reelsOptions.lefthand_righthand,
+        		    'install_fly_line': reelsOptions.install_fly_line,
+      			}
+    		});
+      	 }
+      }
+      
+        productList.forEach(variantID=>{
+          if(variantID !== reelId){ 
+            prods.push({
+            quantity: 1,
+      		id: variantID,
+            properties: {
+                    '_xrsUserId':xrsUserId,
+                    '_itemSource':'SmartBuilder'
+      			}
+          });         
+          }
+          
+       });
+        
+      //console.log(prods);
+      
+        $.ajax({
+      		type: "POST",
+      		url: '/cart/add.js', 
+      		data: { items: prods },
+      		dataType: 'application/json',
+      		success:function(data) {
+        		 console.log('success',data);
+            },error:function(error){
+              if(error.status == 200){
+                // Depending on whether your theme has drawer option comment/uncomment below lines
+                
+                //for redirection to cart page
+                window.location.replace("/cart");
+                
+                //Call your cart-drawer open function here
+                //new theme.CartDrawer();
+                //setTimeout(function() {$('span.cart-link').click();},2000); 
+                
+              }else{  
+              	var obj = JSON.parse(error.responseText);
+                var myString = obj.description;
+                var oldWord = " are in your cart.";
+                var newword = myString.split(oldWord).join('');  
+				console.log(newword.replace("All 1", "")) 
+                alert("Oops! "+ newword.replace("All 1", "") +" cannot be added to the cart right now. Please try after sometime.");
+              	new theme.CartDrawer(); 
+              }
+            }
+       });
+    }
+  });
+  
+  
+  
+  
+  
+  $("body").addClass('green buildAnOutfit data-dc-anchor');  
+  setTimeout(function() {                         
+    $(".dc-build-anchor").appendTo($("body"));
+  },5000);
+
+  $('.smartbuilder').click(function(){ 
+    $('.dc-build-anchor-a').click();
+  });
+ 
+  
+
+  $(window).on('popstate', function(event) {  
+    var state = event.originalEvent.state; 
+    var xtag = document.getElementsByClassName("outfit-header");
+    var confirmBox = $("#confirm");
+    confirmBox.addClass('active'); 
+    confirmBox.find(".yes").click(function(){
+      $('.popup-overlay ').click(); 
+      confirmBox.removeClass('active');  
+      window.history.pushState('forward', null, './');
+    });
+    confirmBox.find(".no").click(function(){ 
+      confirmBox.removeClass('active');
+      window.history.pushState('forward', null, './#smartBuilder&blank=true');
+
+    }); 
+
+  }); 
+  
+  
+  $(document).ready(function(){
+    //dc-build-anchor
+    
+    var urlmain = window.location.hash; 
+    if(urlmain === '#smartBuilder&blank=true'){ 
+      setTimeout(function() {  
+        console.log('small');                       
+        $('.dc-build-anchor-a').click();  
+      },3500);
+
+    } 
+
+    $("a").click(function(e){ 
+      $(".dc-build-anchor").appendTo($("body"));
+      if($(this).attr('href') === '/?smartBuilder&blank=true'){
+        if(e.preventDefault() === undefined) { 
+          $('.dc-build-anchor-a').click();  
+
+          $(".data-dc-anchor").click(function(){
+            window.history.pushState('forward', null, './#smartBuilder&blank=true');
+          });
+ 
+        }
+      }else if($(this).attr('href') === '/?smartBuilder&blank=true&modelId=1fb65f6c0c51498aa3d7eeacbf6eb1e1'){
+        if(e.preventDefault() === undefined) { 
+          $('.dc-build-anchor-a').click();  
+
+          $(".data-dc-anchor").click(function(){
+            window.history.pushState('forward', null, './?smartBuilder&blank=true&modelId=1fb65f6c0c51498aa3d7eeacbf6eb1e1');
+          });
+ 
+        }
+      }
+    });
+  });
+  
+</script>
+<style>
+  .smartbuilder{cursor: pointer;}
+  .dc-popup-logo,
+  .dc-build-anchor-a{display:none;}
+  @media only screen and (max-width: 1100px){
+    .data-dc-anchor .dcs-modal .outfit-result .outfit-footer {  background: #fff;height: 106px; }
+    .data-dc-anchor .dcs-modal .outfit-result .outfit-products { padding-bottom: 66px;}
+  }
+</style>
+ 
