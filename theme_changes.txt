@@ -75,4 +75,7 @@ To enable xrs_compatibility_with use this snippet <span class="xrs_compatibility
 	Suppose you want a anchor tag, your enabled link would look similar to
 	<a href="/?smartBuilder&blank=true">Theme defined content </a>
 	
+      - If you want to directly open a blank builder by hitting a url, You need to add #smartBuilder&blank=true 
+      
+	
 */
