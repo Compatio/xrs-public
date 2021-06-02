@@ -55,4 +55,24 @@ To enable xrs_compatibility_with use this snippet <span class="xrs_compatibility
 
 4.) To enable XCS, insert your addtocart button clases in below variable. this below var code present at line number 10 in our xrs-recommendations.liquid file. 
 	var addTocart = '.btn.btn--full.add-to-cart';
+
+
+
+5)To Enable the blank Smart builder on the theme - 
+      - You need to create smart-builder.liquid in the snippets
+      - Copy the code from this git repository to that file
+      - go to the "Theme.liquid in Layout folder of your shop's theme and before </body> tag put the below code 
+      
+      		{% if template != 'product' %}
+    			<span data-dc-anchor class="data-dc-anchor"></span> 
+    			{% include 'smart-builder' %}
+  		{% endif %}
+		
+	-Whenever you need to open blank builder , use below link as hyperlink 
+	e.g. you can use the below link in your banners, buttons or any hyperlink as href
+	"/?smartBuilder&blank=true" 
+	
+	Suppose you want a anchor tag, your enabled link would look similar to
+	<a href="/?smartBuilder&blank=true">Theme defined content </a>
+	
 */
