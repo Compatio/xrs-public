@@ -17,21 +17,26 @@ comment line - _this.drawer.open();
 Put the below code at the end of this method,
 to handle the variant change in product details page
 
- const productName = $(".product-single__title").text()
+const productName = $(".product__title").text();
       const mergedName = "All of these products will work with your selected <b>"+productName+": "+variant.title+"</b> "; 
        $("#xrs-text").html(mergedName);
        $("#xrs-smart-bundler").attr('parentproductid',variant.id); 
        $("#xrs-parent-name").html(variant.name);
-         if ($("span[id^='AddToCartText-']").text().trim() =="Sold Out") {
-          	$("#bundlersection").hide();           
-          }
+       console.log(variant)
+         if ($("button[id^='AddToCart-']").text().trim() =="Sold Out") {
+         	$("#bundlersection").hide();
+          	$(".data-xrs-anchor").hide();
+          	$(".data-dc-anchor").hide();
+           window.compatioConfig.compatibleProducts.methods.handleChangeProductSku(`${variant.id}`);
+         }
         else{
             	$("#bundlersection").show();           
+                $(".data-xrs-anchor").show();
+                $(".data-dc-anchor").show();
+                window.compatioConfig.compatibleProducts.methods.handleChangeVariantId(`${variant.id}`,variant.price/100);      
+                window.compatioConfig.compatibleProducts.methods.handleChangeProductSku(`${variant.id}`);
+                window.compatioConfig.compatibleProducts.methods.handleChangevariant(`${variant.id}`,variant.price/100,variant.compare_at_price/100,variant.title);
         }
-      var currentprice = variant.price;
-      window.compatioConfig.compatibleProducts.methods.handleChangeProductSku(variant.id);
-      window.compatioConfig.compatibleProducts.methods.handleChangeVariantId(variant.id,variant.price/100);
-      window.compatioConfig.compatibleProducts.methods.handleChangevariant(`${variant.id}`,variant.price/100,variant.title);
 
 
 
