@@ -1,16 +1,14 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <script
         src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
         crossorigin="anonymous">
 </script>
 {% assign xrsenabled = shop.metafields["global"]["XRSExtension"] %}
-<script async src="https://d1py8uag0wt6qo.cloudfront.net/v0/dcp-embed.js"></script>
+<script async src="{{shop.metafields["global"]["CompatioJS"]}}"></script>
 <script> 
-  var addTocart = '.btn.btn--full.add-to-cart';
-  $(addTocart).css('display','none');
+  var addTocart = '.product__add-to-cart';
+  $("html").addClass('sunshine');
   window.compatioConfig = window.compatioConfig || {};
-  window.compatioConfig.gmsMap = {{shop.metafields["shop"]["gmsMap"]}}
   window.compatioConfig.compatioApiKey = {{shop.metafields["global"]["CompatioAPIKey"]}};
   window.compatioConfig.locale = 'en-US';
   window.compatioConfig.shopify={
@@ -19,113 +17,65 @@
     urlSuffix: '',
     shopifyStorefrontAccessToken: "{{shop.metafields["global"]["AccessToken"]}}",
     merchantKey: "{{shop.metafields["global"]["MerchantKey"]}}",
-    targetGraph:"{{shop.metafields["global"]["TargetGraph"]}}",
-    modelId:"{{shop.metafields["global"]["ModelId"]}}",
-    maximumCategories:5,
-    maximumProducts:150
+    targetGraph:"Master", //should use "{{shop.metafields["global"]["Targetgraph"]}}" or "Live"
+    modelId: "{{shop.metafields["global"]["ModelId"]}}",
+    maximumProducts: 150,
+    maximumCategories: 5
   };
-  const price = `{{product.selected_or_first_available_variant.price}}`;
+  const variantPrice = `{{product.selected_or_first_available_variant.price}}`;
   window.compatioConfig.compatibleProducts = {
     productSku: "{{product.selected_or_first_available_variant.id}}" === '' ? undefined : "{{product.selected_or_first_available_variant.id}}",
     productName: `{{product.title}}`,
     variantTitle: `{{product.selected_or_first_available_variant.title}}`,
     productImage: `https:{{product.featured_media | img_url}}`,
-    productType: price === '' ? 'Fly Rods' : `{{product.type}}`,
-    price: price === '' ? 0 : parseFloat(price)/100,
+    productType: variantPrice === '' ? 'CRANKSET' : `{{product.type}}`,
+    price: variantPrice === '' ? 0 : parseFloat(variantPrice)/100,
     compatAtPrice: `{{product.selected_or_first_available_variant.compatAtPrice | money }}`,
     isProductSkuRandom: false,
     productsPerPage: 12,
     isPreloadEcommerceDataEnabled: true,
-    isProductSpecificDC: false,
+    {% if template == 'product' %}
+    isProductSpecificDC: true,
+    {% endif %}
+    industryName : "cycling",
     showAddToCart:true,
     methods: { handleChangeProductSku : function(productSku) {} },
       callbacks: {  }
           };
   
-     window.compatioConfig.compatibleProducts.backingData = [
-        {
-          name: '20 lb Dacron',
-          variantId: '39339460100228',
-          productDetails: {
-            categoryName: 'Backing',
-            compareAtPrice: 0,
-            currency: 'USD',
-            merchantProductSku: '39339460100228',
-            price: 9.95,
-            productHandle: '2020-abel-vaya-reel-5-6-satin-black-green-fade',
-            productName: '20 LB DACRON',
-            url_image:
-              'https://cdn.shopify.com/s/files/1/0336/0607/4500/products/scientific-anglers-dacron-backing_1800x1800.jpg?v=1616419657',
-            variantName: '20 LB DACRON',
-            variantTitle: 'Default Title',
-          },
-        },
-        {
-          name: '30 lb Dacron',
-          variantId: '39339460132996',
-          productDetails: {
-            categoryName: 'Backing',
-            compareAtPrice: 0,
-            currency: 'USD',
-            merchantProductSku: '39339460132996',
-            price: 9.95,
-            productName: '30 LB DACRON',
-            url_image:
-              'https://cdn.shopify.com/s/files/1/0336/0607/4500/products/scientific-anglers-dacron-backing_1800x1800.jpg?v=1616419657',
-            variantName: '30 LB DACRON',
-            variantTitle: 'Default Title',
-          }
-        },
-      ]
-       
-      window.compatioConfig.compatibleProducts.optionsData = [
-        {
-          optionId: 'backing_option',
-          optionDescription: 'PLEASE CHOOSE A BACKING (+ $9.95):',
-          //optionDescription: 'Backing',
-          optionType:'radio',
-          options: [
-            { label: '20 LB DACRON', value: '20 lb Dacron' },
-            { label: '30 LB DACRON', value: '30 lb Dacron' },
-            { label: 'NO BACKING', value: 'No Backing' },
-          ],
-        },
-        {
-          optionId: 'lefthand_righthand',
-          optionDescription: 'WHICH HAND DO YOU REEL WITH?',
-          //optionDescription: 'Retrieve',
-          optionType:'radio',
-          options: [
-            { label: 'LEFT HAND', value: 'Left Hand' },
-            { label: 'RIGHT HAND', value: 'Right Hand' },
-          ],
-        },
-        {
-          optionId: 'install_fly_line',
-          optionDescription:
-            'IF YOU PURCHASE A FLY LINE, WOULD YOU LIKE US TO INSTALL IT ON THIS REEL?',
-          optionType:'radio',
-          options: [
-            { label: 'YES', value: 'Yes' },
-            { label: 'NO', value: 'No' },
-          ],
+  window.compatioConfig.compatibleProducts.backingData = []
+    
+  window.compatioConfig.compatibleProducts.optionsData = []
+    
+  window.compatioConfig.compatibleProducts.dcConfig =  [
+      {
+        modelId: "ff38119f05e243e3ac3e3720b467588c",
+        details: {
+          title: "Build a Drivetrain from this product",
+          buttonText:"Build A Drivetrain",
+          description: "Browse compatible cranksets, cassettes, chain and other accessories",
+          imageUrl:"https://cdn.shopify.com/s/files/1/0336/0607/4500/files/cycling.jpg?v=1622199830"
         }
-      ]  
+      },
+      {
+        modelId: "0d900a08ead140bb90f9b8effb130a26",
+        details: {
+          title: "Get your bike ready to ride",
+          buttonText:"Build A Bike",
+          description: "Browse compatible bikes, pedals, shoes, helmets and other accessories",
+          imageUrl: "https://cdn.shopify.com/s/files/1/0522/3104/5298/files/SALSA_HighRES-8_1.png?v=1612205698"
+        }
+      }
+
+    ]
+        window.compatioConfig.dcColorConfig = { 
+          colorCombination:"yellow",
+          spinnerColor:"yellow"
+        };
     
-    window.compatioConfig.compatibleProducts.dcConfig = {
-            title:"Build an Outfit from this product",
-            description:"Select a rod, reel, line and accessories that all work together.",
-            imageUrl:"https://cdn.shopify.com/s/files/1/0022/3854/5969/files/48677705948_082d5aaa5c_4k_1512x.jpg?v=1622829514"
-          }
-          
-    window.compatioConfig.dcColorConfig = {
-            colorCombination:"green",
-            spinnerColor:"#a00c14"
-          };
-    
-          const prod= `{{product.title}}`;
+    const prod= `{{product.title}}`;
           {% if product.variants.size > 1 %}
-          const variantName = ` : {{current_variant.title }}`;
+          const variantName = ` : {{product.selected_or_first_available_variant.title}}`;
           {% else %}
           const variantName= $("select[id^='SingleOptionSelector-']").val() === undefined ? '' : ': '+$("select[id^='SingleOptionSelector-']").val();
           {% endif %}
@@ -134,10 +84,9 @@
           const prodtype= `{{product.type}}`;
           $(".xrs_compatibility_with").after( `<p type='hidden' id='prodtype' hidden='true' value=${prodtype}>{{product.type}}</p>` );
           $(".xrs_compatibility_with").after( `<p><span data-xrs-compatible-with></span></p>` );
-          if ($("span[id^='AddToCartText-']").text().trim() =="Sold Out") {
-              console.log('sold out');
+          if ($("button[id^='AddToCart-']").text().trim() =="Sold Out") {
              $(".data-dc-anchor").hide();
-             $(".xrs-smart-bundler").hide();
+             $("#bundlersection").hide(); 
           }
   
           $(".data-dc-anchor").click(function(){  
@@ -161,9 +110,11 @@
     if ($("div.xrs-categories").length > 0) {
       $("#anchor").show();
       $(addTocart).css('display','block');
-       	if($(".dc-build-anchor-a").length === 0){
+       	//if($(".dc-build-anchor-a").length === 0){
        	 $(".data-xrs-anchor").show();
-     	}
+         //$("#bundlersection").show(); 
+         //$(".data-dc-anchor").show();
+     	//}
       	const xrsUserId = localStorage.getItem('compatio-xrs-anonymous-id');
     	}
     	else{
@@ -173,48 +124,44 @@
       const baseItemId = hashString.sourceVariantID;
       xrs= 'recommendedItem';
       const xrsUserId = localStorage.getItem('compatio-xrs-anonymous-id');
-      $(".add-to-cart").before(`<input type='hidden' name='properties[xrsUserId]' value=${xrsUserId}>`);
-      $(".add-to-cart").before(`<input type='hidden' name='properties[_baseItemId]' value=${baseItemId}>`);
-      $(".add-to-cart").before(`<input type='hidden' name='properties[_parentItemId]' value=${baseItemId}>`);
-      $(".add-to-cart").before(`<input type='hidden' name='properties[_itemSource]' value='XRS'>`);
 
       if ($('#xrs').length > 0)
         $('#xrs').val(xrs);
-      else {
-        $("#xrsAddtoCart > form > input[name='utf8']").after(`<input id='xrs' type='hidden' name='properties[_xrs]' value=${xrs}>`)  
-      }   
     }         
   },
-             2500
+             2700
             );
   });
 
-  $(addTocart).click(function(){
-
+  $(addTocart).click(function(){ 
     // getting cart details here and check if parent already present
+           
     const prods= [];
     const el = document.getElementById("xrs-bundle");
     if(el !==null){
       el.click();
+          $('body').addClass('xrs-bundle-enable');
       window.scrollTo(0,0);
       const currentVariantName =$('#xrs-parent-name').text();
       let currentprice =$("span[id^='ProductPrice-']").text();
       const dataSectionId= $('#xrs-continue').attr('parentproductsku');
-      let qty= $("#Quantity-{{ section_id }}").val();
+     /*let qty= $(`#Quantity-{{ section_id }}`).val();*/
+      let qty = $('.popout__toggle-value').text(); 
        qty = parseInt(qty);
       if(qty > 1){
-        $('div.xrs-product__success-message > p').append(` (${qty})`);
-        const price = parseFloat($('#xcs-parent-price > span > span').text().substring(1)).toFixed(2);
-        currentprice= `$${parseFloat(price*qty).toFixed(2)}`;
+          $('div.xrs-product__success-message > p').append(`(`+qty+`)`);
+          const price = parseFloat($('#xcs-parent-price > span > span').text().substring(1)).toFixed(2);
+          currentprice= `$`+parseFloat(price*qty).toFixed(2) ;
       }
       const xrsUserId = $('#xrs-continue').attr('xrsuserid');
       if(currentVariantName !== '')
       $('#xcs-parentname').text(currentVariantName); 
       $('#xcs-parent-price > span > span').text(currentprice); 
-      return true;
+      return false;
     }
     else{
-      setTimeout(function() {$('span.cart-link').click();},1500); 
+      
+      setTimeout(function() {$('.cart__toggle').click();},1500);  
       return true;
     }
   });
@@ -251,7 +198,7 @@
     }
   });
   
-  $('.template-list-collections').on('click', '#addoutfittocart',function(){addOutfitToCart();});
+  
 
   $('.template-product').on('click', '#xrs-smart-bundler', function(){
   
@@ -288,95 +235,114 @@
   });
 
   $('.template-product').on('click', '.close', function(){
-    const productList =  $('#xrs-continue').attr('productsadded') === ' ' ? [] : $('#xrs-continue').attr('productsadded').split(',');
+      $('body').removeClass('xrs-bundle-enable');
+    const productList =  $('#xrs-continue').attr('productsadded') === ' ' ? [$('#xrs-continue').attr('parentproductsku')] : $('#xrs-continue').attr('productsadded').split(',');
     const popupType = $('.xrsbundler-modal').attr('popuptype');
     let itemSource = (popupType === "reelsoptions") ? "Bundler" : (popupType === "xrsoptions" ? "XRS" : "XCS");
-    console.log(itemSource);
     if(productList.length > 0) {
       addToCartFromCrossSeller(itemSource);
     }
     else{
-      setTimeout(function() {$('span.cart-link').click();},1500); 
+      
+      setTimeout(function() {$('.cart__toggle').click();},1500);   
     }
   });
 
   $('.template-product').on('click', '#xrs-continue', function(){
-    const productList =  $('#xrs-continue').attr('productsadded') === ' ' ? [] : $('#xrs-continue').attr('productsadded').split(',');
+    $('body').removeClass('xrs-bundle-enable');
+    const productList =  $('#xrs-continue').attr('productsadded') === ' ' ? [$('#xrs-continue').attr('parentproductsku')] : $('#xrs-continue').attr('productsadded').split(',');
     const popupType = $('.xrsbundler-modal').attr('popuptype');
     let itemSource = (popupType === "reelsoptions") ? "Bundler" : (popupType === "xrsoptions" ? "XRS" : "XCS");
     if(productList.length > 0) {
       addToCartFromCrossSeller(itemSource);
     }
     else{
-      setTimeout(function() {$('span.cart-link').click();},1500); 
+      return true;
+      setTimeout(function() {$('.cart__toggle').click();},1500);  
     }
   });
-  
-  $('.template-product').on('click', '#addoutfittocart', function(){addOutfitToCart();});
-  
- const addOutfitToCart = () => { 
+   
+  $('body').on('click', '#addoutfittocart', function(){addOutfitToCart();});
+
+  const addOutfitToCart = () => { 
     let prods = [];
     const productList =  $('#addoutfittocart').attr('productsadded') === ' ' ? [] : $('#addoutfittocart').attr('productsadded').split(',');
     if(productList.length > 0) {
-     const xrsUserId = $('#addoutfittocart').attr('data-userid'); 
-     const reelId = $('#addoutfittocart').attr('reelid');
+      const xrsUserId = $('#addoutfittocart').attr('data-userid'); 
+      const reelId = $('#addoutfittocart').attr('reelid');
       if(reelId !== '-1') {
-      	const reelsOptions = $('#addoutfittocart').attr('additionaloptions') === ' ' ? [] : JSON.parse($('#addoutfittocart').attr('additionaloptions'));
-      	if(reelsOptions !== undefined && reelsOptions.length != 0) {
-        prods.push({
-      		quantity: 1,
-      		id: reelId,
-      		properties: {
-                    '_xrsUserId':xrsUserId,
-                    '_itemSource':'SmartBuilder',
-        			'backing_option': reelsOptions.backing_option,
-		            'lefthand_righthand': reelsOptions.lefthand_righthand,
-        		    'install_fly_line': reelsOptions.install_fly_line,
-      			}
-    		});
-      	 }
+        const reelsOptions = $('#addoutfittocart').attr('additionaloptions') === ' ' ? [] : JSON.parse($('#addoutfittocart').attr('additionaloptions'));
+        if(reelsOptions !== undefined && reelsOptions.length != 0) {
+          prods.push({
+            quantity: 1,
+            id: reelId,
+            properties: {
+              '_xrsUserId':xrsUserId,
+              '_itemSource':'SmartBuilder',
+              'backing_option': reelsOptions.backing_option,
+              'Retrieve': reelsOptions.lefthand_righthand,
+              'Backing': reelsOptions.install_backing,
+            }
+          });
+        }
+        else{
+
+          prods.push({
+            quantity: 1,
+            id: reelId,
+            properties: {
+              '_xrsUserId':xrsUserId,
+              '_itemSource':'SmartBuilder'
+            }
+          });
+
+        }
+
       }
       productList.forEach(variantID=>{
-          if(variantID !== reelId){ 
-            prods.push({
+        if(variantID !== reelId){ 
+          prods.push({
             quantity: 1,
-      		id: variantID,
+            id: variantID,
             properties: {
-                    '_xrsUserId':xrsUserId,
-                    '_itemSource':'SmartBuilder'
-      			}
+              '_xrsUserId':xrsUserId,
+              '_itemSource':'SmartBuilder'
+            }
           });         
-          }
-          
-       });
-      
+        }
+
+      });
+
       addtoCart(prods);
-  }
+    }
   }
   
  const addToCartFromCrossSeller=(itemSource)=>{
     let prods =[];
+    const hashString = document.location.hash.substr(1).split("&").map(v => v.split("=")).reduce( (pre, [key, value]) => ({ ...pre, [key]: value }), {} );
     const btnName = $('#xrs-continue').text().trim();
     const xrsUserId = $('#xrs-smart-bundler').attr('xrsuserid');
     const IsReelAdded = $('#xrs-continue').attr('isreeladded');
-    const productList =  $('#xrs-continue').attr('productsadded') === ' ' ? [] : $('#xrs-continue').attr('productsadded').split(',');
     const reelId = $('#xrs-continue').attr('reelid');
-    const mainProductId = $('#xrs-continue').attr('parentproductid');
+    const mainProductId = $('#xrs-continue').attr('parentproductsku');
+    const productList =  $('#xrs-continue').attr('productsadded') === ' ' ? [] : $('#xrs-continue').attr('productsadded').split(',');
     const backingItem = $('#xrs-continue').attr('backingproduct');
    let qty= $("#Quantity-{{ section_id }}").val();
        qty = parseInt(qty);
     if(btnName === 'Add to Cart'  && IsReelAdded ==='true'){
      const reelsOptions = JSON.parse($('#xrs-continue').attr('additionaloptions'));
-      if(backingItem !== ' ' && reelsOptions !== ' '){
+      if(reelsOptions !== ' '){
+           
+           if(backingItem !== ' ')
             prods.push({
       		quantity: 1,
       		id: backingItem,
       		properties: {
                     '_xrsUserId':xrsUserId,
-                    '_itemSource':itemSource,
+                    '_itemSource':itemSource
       			}
     		});
-           if(reelId !== undefined)
+       		if(reelId !== undefined){
             prods.push({
       		quantity: 1,
       		id: reelId,
@@ -384,10 +350,10 @@
                     '_xrsUserId':xrsUserId,
                     '_itemSource':itemSource,
         			'backing_option': reelsOptions.backing_option,
-		            'lefthand_righthand': reelsOptions.lefthand_righthand,
-        		    'install_fly_line': reelsOptions.install_fly_line,
+		            'Retrieve': reelsOptions.lefthand_righthand,
+        		    'Backing': reelsOptions.install_backing,
       			}
-    		});
+			});}
             productList.forEach(variantID=>{
           	if(variantID !== reelId){ 
             	prods.push({
@@ -418,9 +384,20 @@
       addtoCart(prods);
     }
     if(btnName === 'Continue to Cart'  && IsReelAdded !='true'){
+     productList.push(mainProductId)
+      let props ={ }
+      if(hashString !=='' && hashString.hasOwnProperty('compatibleWith')){
+      const baseItemId = hashString.sourceVariantID;
+      xrs= 'recommendedItem';
+        props = {
+                    '_xrsUserId':xrsUserId,
+                    '_itemSource':'XRS',
+          			'_baseItemId': baseItemId
+      			}
+      }
       if(productList.length > 0) {
         productList.forEach(variantID=>{
-            	if(variantID !== reelId){ 
+            	if(variantID !== reelId && variantID != mainProductId){ 
             	prods.push({
             	quantity: 1,
       			id: variantID,
@@ -428,6 +405,14 @@
                     '_xrsUserId':xrsUserId,
                     '_itemSource':itemSource
       			}
+          	});         
+          }
+          if(variantID === mainProductId)
+          {
+            prods.push({
+            	quantity: 1,
+      			id: variantID,
+            	properties: props
           	});         
           }
         });
@@ -446,8 +431,8 @@
         		 console.log('success',data);
             },error:function(error){
               if(error.status == 200){
-                new theme.CartDrawer();
-                setTimeout(function() {$('span.cart-link').click();},2000); 
+                //This needs to be changed when there is a cart drawer
+                window.location.href ="/cart";
               }else{
                 
               	var obj = JSON.parse(error.responseText);
@@ -455,33 +440,63 @@
                 var oldWord = " are in your cart.";
                 var newword = myString.split(oldWord).join('');  
 				console.log(newword.replace("All 1", "")) 
-                alert("Oops! "+ newword.replace("All 1", "") +" cannot be added to the cart right now. Please try after sometime.");
-              	new theme.CartDrawer(); 
+                alert("Oops! "+ newword.replace(".", "") +" and cannot be added to the cart right now. Please try after sometime.");
+              	
+                //new ajaxCart.load();
+                //new theme.CartDrawer();
+
+                //setTimeout(function() {$('.cart__toggle').click();},1500);  
               }
             }
        });
   }
  
  
-  setTimeout(function() {  
-    $(".dc-build-anchor").appendTo($("body")); 
-  },5000);
  
-  $(document).ready(function(){
-    //dc-build-anchor
-    
-    var urlmain = window.location.hash; 
-    if(urlmain === '#smartBuilder&blank=true'){ 
-      setTimeout(function() {  
-        console.log(urlmain);      
-        $('.dc-build-anchor-a').click();  
-         window.history.pushState('forward', null, './#forward');
-        $('.dc-header').click(); 
-      },5000);
-    }     
-  }); 
-  
-    $(window).on('popstate', function(event) {  
+
+   setTimeout(function() {  
+     $(".dc-build-anchor").appendTo($("body")); 
+   },5000);
+
+    $(document).ready(function(){
+      //dc-build-anchor
+
+      var urlmain = window.location.hash; 
+      if(urlmain === '#smartBuilder&blank=true'){ 
+        setTimeout(function() {        
+          $('.dc-build-anchor-a').click();  
+          window.history.pushState('forward', null, './#smartBuilder&blank=true');
+          $('.dc-header').click(); 
+        },5000);
+      }
+
+
+
+      $("a").click(function(e){ 
+        $(".dc-build-anchor").appendTo($("body"));
+        if($(this).attr('href') === '/?smartBuilder&blank=true'){
+          if(e.preventDefault() === undefined) { 
+            $('.dc-build-anchor-a').click();  
+
+            $(".data-dc-anchor").click(function(){
+              window.history.pushState('forward', null, './#smartBuilder&blank=true');
+            });
+
+          }
+        }else if($(this).attr('href') === '/?smartBuilder&blank=true&modelId=1fb65f6c0c51498aa3d7eeacbf6eb1e1'){
+          if(e.preventDefault() === undefined) { 
+            $('.dc-build-anchor-a').click();  
+
+            $(".data-dc-anchor").click(function(){
+              window.history.pushState('forward', null, './?smartBuilder&blank=true&modelId=1fb65f6c0c51498aa3d7eeacbf6eb1e1');
+            });
+
+          }
+        }
+      });
+    });  
+
+  $(window).on('popstate', function(event) {  
     var state = event.originalEvent.state; 
     var xtag = document.getElementsByClassName("outfit-header");
     var confirmBox = $("#confirm");
@@ -491,14 +506,18 @@
       confirmBox.removeClass('active');  
       window.history.pushState('forward', null, './');
     });
-      confirmBox.find(".no").click(function(){ 
+    confirmBox.find(".no").click(function(){ 
       confirmBox.removeClass('active');
       window.history.pushState('forward', null, './#forward');
     }); 
-  });  	  
+  });   	  
   </script> 
  
 {% if xrsenabled == "true" and template == "product" %}
 <span data-xrs-compatible-products></span>
-{% endif %}                                      
-
+ {% endif %} 
+<style>     
+  {% if template == "index" %} 
+  .data-dc-anchor .dc-build-anchor-a{display:none;}
+  {% endif %}  
+</style>
